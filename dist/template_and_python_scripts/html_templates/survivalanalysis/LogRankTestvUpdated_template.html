@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<!--
+			
+			Version history
+
+			1.0.0	First feature complete version.
+			1.2.0	Improved User Interface.
+			1.3.0	Added Save HTML feature.
+			1.3.1	Minor bug fixes, includes faster getting column titles. Pasting instruction has also been added.
+			
+		-->
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
+	<script>
+        // array of compressed codes
+        var compressed_codes = [];
+    </script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="bootstrap.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<!-- copied from deafault -->
+	<!-- <script src="jquery.js"></script> -->
+   
+    <link rel="stylesheet" type="text/css" href="jqueryui.css"></link>
+	<script language="javascript" src="lz-string.js"></script>
+	<script src="xlsx.core.min.js"></script>
+    <script src="xls.core.min.js"></script>
+	<script src="plotly.js"></script> 
+    <script src="tabulator.js"></script>
+    <link rel="stylesheet" type="text/css" href="tabulator.css"></link>
+	<script src="jstat.js"></script>
+	<script src="data.js"></script>
+    <!-- processing of compressed codes, make sure that this piece of code is after all the javascript imports else it will not work properly -->
+    <script>
+      // decompress the codes
+      for (i = 0; i < compressed_codes.length; i++) {
+          eval(LZString.decompressFromBase64(compressed_codes[i]));
+      }
+  	</script>
+   	<style>
+        .text-align-center{
+            text-align: center;
+        } 
+        body{
+            height:100%;
+            width:100%;
+            position: absolute;
+            color:rgb(61, 60, 60);
+        }
+        .up, .up_page3{
+        width: 0;
+        height: 0; 
+        padding-top: 5px;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-bottom: 25px solid rgb(61, 60, 60);;
+        transition: 2000ms ease;
+        }
+        .down{
+        width: 0;
+        height: 0; 
+        padding-top: 5px;
+        border-left: 25px solid transparent;
+        border-right: 25px solid transparent;
+        border-top: 25px solid rgb(61, 60, 60);;
+        transition: 2000ms ease;
+        } 
+        .container-fluid{
+            position: inherit;
+            height: 100%;
+        }
+        .page_intro{
+            font-family: sans-serif;
+            color:rgb(61, 60, 60);
+            transition: 2500ms ease;
+            text-align: center;
+        }
+        #menu{
+            position: relative;
+            vertical-align: center;
+            padding-bottom: 76px
+        }
+        .page_intro h1{
+            font-size: 67px;
+        }
+        .page_intro p{
+            font-size: 21px;
+        } 
+        .page_upload{
+            font-family: sans-serif;
+            transition: 2500ms ease;
+            overflow: auto;
+            text-align: center;
+            padding: 17px;
+        }
+        .arrowclass, .downClass, .upClass{
+            transition:opacity 2s;
+            height: 17%;
+            text-align: center;
+            top: 0;
+        }
+        .page_upload h1{
+            font-size: 75px;
+        } 
+        .page_variable{
+            font-family: sans-serif;
+            transition: 2500ms ease;
+            overflow: auto;
+            text-align: center;
+            padding: 17px;
+        }
+        #appendFilter h1{
+            font-size: 75px;
+        }     
+        .thisrow1{
+            height: 50%;
+        }
+        .row{
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+        .nopadding{
+            padding: 0;
+            margin: 0;
+        }
+        
+        .excel_choose, .paste_data{
+            transition: collapse 500ms ease-in;    
+        }
+        .upload_paste, .upload_excel{
+            height: 100%;
+        }
+        .excel, .paste{
+            color: pink;
+            transition: 1000ms ease;
+        }
+        
+        .left_container, .right_container{
+            position: absolute;
+            height: 100%;
+            width: 100%;
+           
+        } 
+    </style>
+    <title>Survival Analysis</title>
+</head>
+<body id="theBody">
+	<div id="theWhole" class="container-fluid bg-light justify-content-center overflow-hidden">
+        <div class="d-flex flex-column justify-content-center align-items-center bg-light h-100 page_intro border-0 "> 
+			<div id="menu">
+                <a href="https://www.a-star.edu.sg/sign/" style="margin-right: 10px;"><img src="data:image/png;base64,%20iVBORw0KGgoAAAANSUhEUgAAALwAAABQCAYAAACjzx9SAAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAABCVpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICAgICAgICAgIHhtbG5zOmV4aWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vZXhpZi8xLjAvIgogICAgICAgICAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICAgICAgICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyI+CiAgICAgICAgIDx0aWZmOlJlc29sdXRpb25Vbml0PjI8L3RpZmY6UmVzb2x1dGlvblVuaXQ+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjA8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOlhSZXNvbHV0aW9uPjcyPC90aWZmOlhSZXNvbHV0aW9uPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICAgICA8dGlmZjpZUmVzb2x1dGlvbj43MjwvdGlmZjpZUmVzb2x1dGlvbj4KICAgICAgICAgPGV4aWY6UGl4ZWxYRGltZW5zaW9uPjE4ODwvZXhpZjpQaXhlbFhEaW1lbnNpb24+CiAgICAgICAgIDxleGlmOkNvbG9yU3BhY2U+MTwvZXhpZjpDb2xvclNwYWNlPgogICAgICAgICA8ZXhpZjpQaXhlbFlEaW1lbnNpb24+ODA8L2V4aWY6UGl4ZWxZRGltZW5zaW9uPgogICAgIC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"></a>
+            </div>
+			<h1>Survival Analysis Test</h1>
+			<div style=" font-size: 10px; font-weight: bold;">Created by the <a href="https://www.a-star.edu.sg/sign/TECHNOLOGY/Bioinformatics">Bioinformatics Group</a> at the Singapore Immunology Network (SIgN), A*STAR</div>
+			<br><br>
+            <p>start here</p> 
+			<br><br><br><br><br><br> 	
+		</div>
+        <div class="d-flex flex-column justify-content-center h-100 page_upload  border-0">
+            <div class="d-flex align-self-center flex-column w-25 align-items-center justify-content-start arrowclass" style="visibility:collapse;opacity:0">
+                <i class="up"></i>
+            </div>
+            <h1>DECIDE INPUT</h1>
+            <div class="row thisrow1"> 
+                 <div class="upload_excel col-md-6 d-flex flex-column justify-content-start nopadding">
+                    <div class="left_container bg-dark d-flex flex-column justify-content-center align-items-center nopadding">
+                        <div class="excel nopadding bg-info w-50 d-flex flex-row justify-content-center align-items-center">
+                            <a href="#excelChoose" data-toggle="collapse" class="btn btn-info btn-lg btn_excel" role="button">choose your excel file</a>
+                        </div>
+                        <div id="excelChoose" class="collapse nopadding bg-light excel_choose w-100">
+                            <div id="appendExcel" class=" d-flex flex-column align-items-center justify-content-center">
+                                <!-- appended upload excel div -->
+                            </div>
+                        </div>
+                    </div>     
+                 </div>
+                 <div class="upload_paste col-md-6 d-flex flex-column justify-content-start nopadding">
+                     <div class="right_container bg-info   d-flex flex-column justify-content-center align-items-center nopadding">
+						<div class="paste nopadding bg-dark w-50 d-flex flex-row justify-content-center align-items-center">
+							<a href="#pasteData" data-toggle="collapse" class="btn btn-dark btn-lg btn_excel" role="button">paste your input data</a>
+						</div>
+						<div id="pasteData" class="collapse paste_data nopadding bg-light w-100">
+							<div id="appendPaste" class="d-flex flex-column align-items-center justify-content-center">
+								<!-- appended paste input div -->
+							</div>
+						</div>
+                     </div>
+                 </div>
+			</div>
+			<div id="dialog-message" title="Attention" class="text-align-center">
+				<p> 
+					<span>If you are using data in <i><b>.txt file</b></i>, please proceed with <b>"paste your input data"</b>.</span>
+					<br><br> Simply copy your whole data, and paste it in the textarea.
+					<br><br> Note: Input data should have at least one binary column.
+				</p>
+			</div>
+            <br><br><br><br><br><br><br><br>
+            <div class="d-flex align-self-center flex-column w-25 align-items-center justify-content-start downClass" style="visibility:collapse;opacity:0">
+                    <i class="down"></i>
+            </div>
+        </div> 
+        <div class="d-flex flex-column justify-content-center text-align-center h-100 page_variable overflow-auto border-0">
+                <div class="d-flex align-self-center flex-column w-25 align-items-center justify-content-start upClass" style="visibility:collapse;opacity:0">
+                    <i class="up_page3"></i>
+                </div>
+                <div id="appendFilter" class="d-flex flex-column text-align-center justify-content-center">
+						<!-- appended upload excel div --> 
+				</div>
+				<div id="menubar"></div>
+				<div id="dialog"></div>
+				<div id="containDlg"></div> 
+		</div>
+		<div id="downloadDiv"></div>
+		<!-- containJ will contain the stringified json data upon downloading -->
+		<div id="containJ"><p></p></div>
+		<div id="dialog_titles" title="Warning" class="text-align-center">
+			<p>Please make sure that your data table started at <b><i>column A row 1</i></b>.</p>
+		</div>
+		<div id="dialog_download" title="Attention" class="text-align-center">
+			<p>Make sure to locate the downloaded file inside the default folder: <b><i>survival_analysis_html</i></b>, in order to access the result.</p>
+		</div> 
+	</div>
+	<script>
+	function downloadInnerHtml(filename, elId, mimeType){
+		var elHtml = document.getElementById(elId).innerHTML;
+ 		var link = document.createElement('a');
+      	var link2 = document.createElement('a');
+ 		mimeType = mimeType || 'text/plain';
+ 		link.setAttribute('download', filename); 
+      	link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(elHtml));
+    	document.body.appendChild(link);  
+		link.click(); 
+      	document.body.removeChild(link);  
+    }
+
+	var fileName = 'logrankTestResult.html'; 
+	function saveHTML(){ 
+		$('#downloadDiv').show();
+		$("html").clone().appendTo('#downloadDiv'); 
+		$("#downloadDiv > html").html(""); 
+		$("head").contents().clone().appendTo("#downloadDiv > html > head"); 
+		$("#appendFilter").clone().appendTo("#downloadDiv > html > body"); 
+		$("#containDlg").html("<div id='dialog'></div>"); 
+		$("#containDlg").clone().appendTo("#downloadDiv > html"); 
+		$("#containDlg").empty(); 
+		$("#thePrecedent").clone().appendTo("#downloadDiv > html"); 
+		$("#theScript1").clone().appendTo("#downloadDiv > html"); 
+		$("#theScript2").clone().appendTo("#downloadDiv > html"); 
+		$("#theScript").clone().appendTo("#downloadDiv > html"); 
+		$("containJ").show(); 
+		$("#containJ > p").text(JSON.stringify(prejson));  
+		$("#containJ").clone().appendTo("#downloadDiv > html");  
+		$("#theOtherScript").append("var jsonfied = document.getElementById('containJ').children[0].innerText; var jsonParsed = JSON.parse(jsonfied); show_result(jsonParsed); $('#containJ').hide()"); 
+		$("#theOtherScript").clone().appendTo("#downloadDiv > html"); 
+		downloadInnerHtml(fileName, 'downloadDiv', 'text/html'); 
+		$('#downloadDiv').empty(); 
+		$('#downloadDiv').hide(); 
+		$('#containJ > p').empty(); 
+		$('#containJ').hide(); 
+		$('#theOtherScript').empty(); 
+	};
+	</script>
+    <!-- jQuery scripts -->
+    <script id="thePrecedent" src="./jquery.js"></script>
+    <script id="theMain">
+		$(document).ready(()=>{
+			if (typeof data == "string"){
+				data = LZString.decompressFromBase64(data);
+				data = JSON.parse(data);
+			};
+		});
+		$(document).ready(()=>{
+			$("#appendExcel").html("<p style='color:red; font-size:14px; font-weight:bold;'>Note: Input data should have at least one binary column. </p><p style='font-size: 14px; font-weight: bold;'>Choose an excel file or click Reset File to re-choose: <br></p><input type='file' id='excelfile'  accept= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'/><br><p id='sheets_choice_text' style='font-size: 14px; font-weight: bold; visibility: hidden'>Select one sheet from the excel file submitted:</p><select id='sheets_choice' style='visibility: hidden'></select><br><input class='submit_button btn btn-secondary' type='button' value='Submit File' onclick='submit_file($(\"#excelfile\").val());'/><button class='btn btn-warning align-self-end btn-sm' onclick='reloadExcel()'>Reset File</button><br>");
+			$("#appendPaste").html("<div id='upload' style='margin:3px;  margin:0 auto; text-align:center'><p style='color:red; font-size:14px; font-weight:bold;'>Note: Input data should have at least one binary column. </p><p style='font-size: 14px; font-weight: bold;'>You can copy your data from your table and paste it below:<br></p><textarea id='textArea' name='textbox' style='width:400px;height:150px;' placeholder='Please paste your data here.'></textarea><br><input type='button' class='submit_button' value='Submit Table' onclick='get_data($(\"textarea[name=textbox]\").val());'/><br></div>");
+		}); 
+		function storeThis(dataTemp){
+			console.log('Store This is clicked');
+			localStorage.setItem('dataTemp', JSON.stringify(dataTemp));
+			console.log('dataTemp');
+		} 
+		function showStored(){
+			var savedTest = JSON.parse(localStorage.getItem('dataTemp'));
+			show_result(savedTest);
+		} 
+		function clearStored(){
+			localStorage.clear();
+		}
+		var a = 0;
+		function reloadExcel(){ 
+			if($('#excelfile').val()!=""){
+			$("#appendExcel").html("<p style='color:red; font-size:14px; font-weight:bold;'>Note: Input data should have at least one binary column. </p><p style='font-size: 14px; font-weight: bold;'>Choose an excel file: <br></p><input type='file' id='excelfile' accept= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'/><br><p id='sheets_choice_text' style='font-size: 14px; font-weight: bold; visibility: hidden'>Select one sheet from the excel file submitted:</p><select id='sheets_choice' style='visibility: hidden'></select><br><input class='submit_button' type='button' value='Submit File' onclick='submit_file($(\"#excelfile\").val());'/><button class='btn btn-dark align-self-end btn-sm' onclick='reloadExcel()'>Reset File</button><br>");
+			console.log('reloadExcel is called')} 
+		};
+		var cq_workbook;
+		var prejson;
+		function submit_file(filepath){
+			cq_filepath = filepath; 
+			if (!(filepath == '')){ 
+				var xlxsflag = filepath.endsWith(".xlsx");
+				var reader = new FileReader(); 
+				reader.onload = function (e) {
+					filepath = e.target.result;
+					// Converts the excel data in to object
+					if (xlxsflag) {
+						var workbook = XLSX.read(filepath, {type: 'binary'});
+						cq_workbook = workbook;
+					}
+					else {
+						var workbook = XLS.read(filepath, {type: 'binary'});
+					}
+					// Gets all the sheetnames of excel in to a variable
+					var sheet_name_list = workbook.SheetNames;
+					var index = null;
+					var sheet;
+					if (sheet_name_list.length > 1 && $("#sheets_choice").css('visibility') == 'hidden') {
+						$('#sheets_choice_text').css('visibility','visible');
+						$("#sheets_choice").css('visibility','visible');
+						$("#sheets_choice").empty();
+						for (var i = 0; i < sheet_name_list.length; i++) {
+							$("#sheets_choice").append('<option value="' + sheet_name_list[i] + '">' + sheet_name_list[i] + '</option>')
+						}
+						return;
+					}
+					var val = $("#sheets_choice").val();
+					cq_val = String(val);
+					index = sheet_name_list.indexOf(val); 
+					if (sheet_name_list.length == 1 || index != null ) {
+						if(sheet_name_list.length == 1){
+							sheet = sheet_name_list[0];
+						}
+						else {
+							sheet = sheet_name_list[index];
+						}
+						// Convert the cell value to Json
+						if (xlxsflag) {
+							var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+							// console.log({exceljson});
+							console.log('converted to json 1');
+						}
+						else {
+							var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[sheet]);
+							console.log('converted to json 2');
+							// console.log({exceljson});
+						}
+						if (exceljson.length == 0) {
+							// console.log('exceljson:', exceljson);
+							alert('No data found on excel file');
+							return;
+						}
+						// Getting titles of table
+						console.log("getting titles of table");
+						var i=0; 
+						var titel= new Set(); 
+						cq_workbook = workbook;
+						var strKey = Object.keys(cq_workbook.Sheets[sheet]);
+						if(strKey[0]!=='A1'){
+						strKey = strKey.slice(1, strKey.length)
+						};
+						strKey = strKey.slice(0, strKey.indexOf('A2'));
+						var headers = [];
+						for(var sk of strKey){
+						headers.push(workbook.Sheets[sheet][sk]["w"])
+						}  
+						var titles = headers; 
+						cq_titlesNew = titles;
+						// Create json object with titles as key
+						var obj = {};
+						for (var i = 0; i < titles.length; i++) {
+							obj[titles[i]] = [];
+						}
+						// Pushing the value onto the json object
+						console.log("starting to push value onto the json object");
+						for (var i = 0; i < exceljson.length; i++) {
+							var no_keys = Object.keys(exceljson[i]).length;
+							for (var j = 0; j < no_keys; j++) {
+								// lastJ = {j, no_keys, i};
+								var key = Object.keys(exceljson[i])[j];
+								lastJ = {j, no_keys, i, key};
+								if (isNaN(exceljson[i][key])){
+									obj[key].push(exceljson[i][key]);										
+								}
+								else{
+									obj[key].push(Number(exceljson[i][key]));	
+								}
+							}
+							if(no_keys != titles.length){
+								var keys = Object.keys(exceljson[i]);
+								for(var k = 0; k < titles.length; k++){
+									lastK = {k, titlles_length: titles.length, i};
+									if(keys.indexOf(titles[k]) == -1){
+										obj[titles[k]].push(null);
+									}
+								}
+							};
+						}; 
+						data = obj; 
+						data_titles = titles;
+						filter_data(data, data_titles);
+					}    
+				}
+				// If excel file is .xlsx extension than creates a Array Buffer from excel
+				if (xlxsflag) {
+					reader.readAsArrayBuffer($("#excelfile")[0].files[0]);
+				}
+				else {
+					reader.readAsBinaryString($("#excelfile")[0].files[0]);
+				}
+			}			
+			else{
+				alert("Please upload an excel file.");
+			}
+		};
+		function get_data(tdata){ 
+			if (!tdata){
+				alert("Please paste your data in the textbox.");
+			}
+			else{
+				do{
+					if (tdata.endsWith("\n")){
+						tdata = tdata.substr(0, tdata.length-1);
+					}
+				} while (tdata.endsWith("\n"));
+				var rows = tdata.split("\n");
+				data_titles = rows[0].split("\t");
+				var ndata = {};
+				for(var i = 0; i < data_titles.length; i++){
+					ndata[data_titles[i]] = [];
+				}
+				for(var i = 1; i < rows.length; i++){
+					var cells = rows[i].split("\t");
+					for(var j = 0; j < data_titles.length; j++){
+						if (isNaN(cells[j])){
+							ndata[data_titles[j]].push(cells[j]);
+						}
+						else{
+							if (cells[j] == ""){
+								ndata[data_titles[j]].push(null);
+							}
+							else{
+								ndata[data_titles[j]].push(Number(cells[j]));	
+							}
+						}
+					}
+				}
+				data = ndata;
+				filter_data(data, data_titles);
+			}
+		}
+		var dataTemp;
+		function filter_data(data,titles){
+			if(!($("#textArea").val()==0) || !($('#excelfile').val()==0)) { 
+				$('.page_intro').css({transform: 'translateY(-100%)'});
+				$('.page_upload').css({transform: 'translateY(-200%)'});
+				$('.page_variable').css({transform: 'translateY(-200%)'});
+				if($('.page_variable').css({transform: 'translateY(-200%)'})){
+					$('.upClass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+				}; 
+			}; 
+			var data = data;
+			var data_titles = titles;
+			var ntitles = [];
+			var ndata = {};
+			var time, event;
+			for (var i = 0; i < data_titles.length; i++){
+				ndata[data_titles[i]] = [];
+				for (var j = 0; j < data[data_titles[i]].length; j++){
+					if (data[data_titles[i]][j] != null){
+						ndata[data_titles[i]].push(data[data_titles[i]][j]);
+					}
+				}
+			}
+			$(document).ready(function() {
+				$(".page_variable > #menubar").hide();	
+				$("#appendFilter").html("<h1>SELECT THE VARIABLES</h1><div id='myfilter' class='bg-dark text-info' style='margin:3px; text-align:center'><br><p style='font-size: 14px; font-weight: bold;'></p><p style='font-size: 14px; font-weight: bold;'>Time: <select id='time'></select></p><p style='font-size: 14px; font-weight: bold;'>Event: <select id='event'></select></p><p style='font-size: 14px; font-weight: bold;'>Covariate: </p><p style='font-size: 13px;'>To select multiple: Windows[<strong>+ctrl</strong>]//Mac[<strong>+cmd</strong>]</p><div id='myvariable'style='display:flex; justify-content:center; align-items:center '><div id='left'><p style='font-size: 14px; font-weight: bold;'>Available:</p><select id='before' multiple style='width:300px; height:150px'></select></div><div id='center'><input type='button' id='add' value='Add'/><br><br><input type='button' id='del' value='Remove'/></div><div id='right' ><p style='font-size: 14px; font-weight: bold;'>Selected:</p><select id='after' multiple style='width:300px; height:150px'></select></div></div><br><input type='button' id='submit_titles' value='Submit Variables' /><br><br></div>");
+
+				$("#time").html(data_titles.filter(function(x){if(typeof ndata[x][0] == "number"){return x}}).map(function(x){return '<option>' + x + '</option>'}));
+				$("#event").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){return x}}).map(function(x){return '<option>' + x + '</option>'}));	
+				$("#before").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){return x}}).map(function(x){return '<option>' + x + '</option>'}));	
+				$("#time").val("");
+				$("#event").val("");
+				$("#after").val("");	
+				time = $("#time").val();
+				event = $("#event").val();
+
+				$("#time").on('change', function(){
+					time = $("#time").val();
+					$("#event").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#before").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val() && x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#event").val(event);
+				});
+				$("#event").on('change', function(){
+					event = $("#event").val();
+					$("#before").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val() && x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#time").html(data_titles.filter(function(x){if(typeof ndata[x][0] == "number"){if(ntitles.indexOf(x)==-1){return x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#time").val(time);
+				});
+				$("#add").on('click', function(){
+					$.each($("#before option:selected"),function(x){ntitles.push($(this).val());});
+					$("#after").html(ntitles.map(function(x){return '<option>' + x + '</option>'}));
+					$("#before").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val() && x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#event").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#time").html(data_titles.filter(function(x){if(typeof ndata[x][0] == "number"){if(ntitles.indexOf(x)==-1){return x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#time").val(time);
+					$("#event").val(event);
+				});
+				$("#del").on('click', function(){
+					$.each($("#after option:selected"),function(x){remove = ntitles.splice(ntitles.indexOf($(this).val()),1);});
+					$("#after").html(ntitles.map(function(x){return '<option>' + x + '</option>'}));
+					$("#before").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val() && x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#event").html(data_titles.filter(function(x){if(new Set(ndata[x]).size == 2){if(ntitles.indexOf(x)==-1){return x != $("#time").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#time").html(data_titles.filter(function(x){if(typeof ndata[x][0] == "number"){if(ntitles.indexOf(x)==-1){return x != $("#event").val()}}}).map(function(x){return '<option>' + x + '</option>'}));
+					$("#time").val(time);
+					$("#event").val(event);
+				});
+				$("#submit_titles").on('click', function(){
+					if (ntitles.length == 0 || $("#time").val() == null || $("#event").val() == null){
+						alert("Please select the variable for time, event and covariate.");
+					}
+					if (ntitles.length != 0 && $("#time").val() != null && $("#event").val() != null){
+						covariate = {};
+						for (var i = 0; i < ntitles.length; i++){
+							covariate[ntitles[i]] = data[ntitles[i]];
+						}
+						selected_data = {"time": data[$("#time").val()], "event": data[$("#event").val()], "covariate": covariate};
+						dataTemp = selected_data;
+						prejson = dataTemp;
+						show_result(selected_data); 
+					}
+				});
+			});	
+		}
+		var rgdGV;
+		var rgdGM;
+		function show_result(selected_data){
+			var selected_data = selected_data;
+			$(document).ready(function() {
+				$("#menubar > button[class='menu_btn']").hide();
+				$(".page_variable > #menubar").show();	
+				$("#menubar").html("<button class='menu_btn btn btn-secondary' onclick='filter_data(data, data_titles)'>Reset Variables</button><button class='d-menu_btn btn btn-info save_test' onclick='storeThis(selected_data)'>Save Test</button><button id='downloadLink' class='menu_btn btn btn-warning' onclick='saveHTML()'>Save HTML</button>");
+				var data = logrank_test(selected_data["time"], selected_data["event"], selected_data["covariate"]);
+				dataShow = data;
+				$("#appendFilter").html("<div id='logrank'><h1>Survival Analysis Test</h1><p style='color:red'>*Click on each covariate row to show the Kaplan Meier graph.</p><div id='logrank_table'></div></div>");
+					window.logrank_table = new Tabulator("#logrank_table", {
+					data: data,
+					pagination: "local",
+					paginationSize: 25,
+					layout:"fitColumns",
+					columns: [
+						{title:"covariate", field:"covariate"},
+						{title:"pvalue", field:"pvalue"},
+						{title:"chisq", field:"chisq"},
+						{title:"obs_sum1", field:"obs_sum1"},
+						{title:"obs_sum2", field:"obs_sum2"},
+						{title:"exp_sum1", field:"exp_sum1"},
+						{title:"exp_sum2", field:"exp_sum2"},
+						{title:"var_sum", field:"var_sum"}
+					],
+					rowClick(e, row) {
+						plot_km(row.getData()); 
+					},
+				});  
+			});
+		}
+		function show_saved(selected_data){
+			var selected_data = selected_data;
+			$(document).ready(function() {
+				$("#menubar > button[class='menu_btn']").hide();	
+				$("#menubar").html("<button class='menu_btn' onclick='filter_data(data, data_titles)'>Reset Variables</button>");
+				var data = logrank_test(selected_data["time"], selected_data["event"], selected_data["covariate"]);
+				$("#appendFilter").html("<div id='logrank'><h1>Survival Analysis Test</h1><p style='color:red'>*Click on each covariate row to show the Kaplan Meier graph.</p><div id='logrank_table'></div></div>");
+					window.logrank_table = new Tabulator("#logrank_table", {
+					data: data,
+					pagination: "local",
+					paginationSize: 25,
+					layout:"fitColumns",
+					columns: [
+						{title:"covariate", field:"covariate"},
+						{title:"pvalue", field:"pvalue"},
+						{title:"chisq", field:"chisq"},
+						{title:"obs_sum1", field:"obs_sum1"},
+						{title:"obs_sum2", field:"obs_sum2"},
+						{title:"exp_sum1", field:"exp_sum1"},
+						{title:"exp_sum2", field:"exp_sum2"},
+						{title:"var_sum", field:"var_sum"}
+					],
+					rowClick: function(e, row) {		
+						plot_km(row.getData()); 
+					},
+				});
+			});
+		} 
+		function logrank_test(time, event, covariate){
+			var selected_data = {"time" : time, "event" : event, "covariate" : covariate};
+			var cdata = [];
+			// convert the data into a useable format
+			for (var cname in selected_data["covariate"]){
+				var data = {};
+				if (selected_data.hasOwnProperty("time")){
+					var newData = [];
+					for (var i = 0; i < selected_data[Object.keys(selected_data)[0]].length; i++) {
+						var obj = {};
+						for (var aname in selected_data) {
+							if (aname == "covariate"){
+								obj[aname] = selected_data["covariate"][cname][i];
+							}
+							else{
+								obj[aname] = selected_data[aname][i];
+							}
+						}
+						newData.push(obj);
+					}
+					data = newData;
+				}
+				// mapping data for log-rank test
+				var combined = new Map();
+				var calc = {};
+				var gnames = [];
+				var obs_sum1 = 0, obs_sum2 = 0, exp_sum1 = 0, exp_sum2 = 0, var_sum = 0;
+				var chisq = 0, pvalue = 0;
+				var group_values = new Set(data.map(function(x) { return x["covariate"] }));
+				for (let name of group_values){
+					gnames.push(name);
+				}
+				data.filter(function(row) {
+					return row["event"]==1
+				}).map(function(row) {
+					if (!combined.has(row["time"])) {
+						combined.set(row["time"], new Map());
+					}
+				});
+				for (let tp of combined.keys()) {
+					combined.get(tp).set("risk_n1", data.filter(function(row) { return row["covariate"]==gnames[0] && row["time"]>=tp }).length);
+					combined.get(tp).set("obs_n1", data.filter(function(row) { return row["covariate"]==gnames[0] && row["time"]==tp && row["event"]==1 }).length);
+					combined.get(tp).set("risk_n2", data.filter(function(row) { return row["covariate"]==gnames[1] && row["time"]>=tp }).length);
+					combined.get(tp).set("obs_n2", data.filter(function(row) { return row["covariate"]==gnames[1] && row["time"]==tp && row["event"]==1 }).length);	
+				}
+				for (let tp of combined.keys()) {
+					combined.get(tp).set("exp_n1", combined.get(tp).get("risk_n1") * ((combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")) / (combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"))));
+					combined.get(tp).set("exp_n2", combined.get(tp).get("risk_n2") * ((combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")) / (combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"))));
+					combined.get(tp).set("var", ((combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")) * combined.get(tp).get("risk_n1") * combined.get(tp).get("risk_n2") * ((combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"))-(combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")))) / (Math.pow(combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"),2) * (combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2") - 1)));		
+				}
+				for (let tp of combined.keys()){ 
+					obs_sum1 += combined.get(tp).get("obs_n1");
+					obs_sum2 += combined.get(tp).get("obs_n2");
+					exp_sum1 += combined.get(tp).get("exp_n1");
+					exp_sum2 += combined.get(tp).get("exp_n2");
+					var_sum += combined.get(tp).get("var");
+				}
+				chisq = (Math.pow(obs_sum1 - exp_sum1,2)) / (var_sum);
+				pvalue = 1 - jStat.chisquare.cdf(chisq, 1); 
+				//mapping data for kaplam meier graph
+				var groups = new Map(); // keyed by timepoint
+				var group_values = new Set(data.map(function(x) { return x["covariate"] }));
+				// add the timepoints to the groups
+				groups.set(0, new Map()); // add the 0 timepoint
+				group_values.forEach(function(gname) {
+				groups.get(0).set(gname, new Map());
+				// add the timepoints in the data
+				data.filter(function(row) {
+					return row["covariate"]==gname
+				}).map(function(row) {
+					if (!groups.has(row["time"])) {
+						groups.set(row["time"], new Map());
+					}
+					if (!groups.get(row["time"]).has(gname)) {
+						groups.set(row["time"], new Map());
+						groups.get(row["time"]).set(gname, new Map());
+					}
+				});
+			});
+			// fill up the numbers
+			for (let tp of groups.keys()) {
+				for (let gname of groups.get(tp).keys()) {
+					groups.get(tp).get(gname).set("risk_n", data.filter(function(row) { return row["covariate"]==gname && row["time"]>=tp }).length);
+					groups.get(tp).get(gname).set("death_n", data.filter(function(row) { return row["covariate"]==gname && row["time"]==tp && row["event"]==1 }).length);
+					groups.get(tp).get(gname).set("censored_n", data.filter(function(row) { return row["covariate"]==gname && row["time"]==tp && row["event"]==0 }).length);
+				}
+			}
+			// compute the suvrival_prob
+			group_values.forEach(function(gname) {
+				var tps = [];
+				groups.get(0).get(gname).set("surv_prob", 1.0);
+				for (let tp of groups.keys()) {
+					if (groups.get(tp).has(gname)) {
+						tps.push(tp);
+					}
+				}
+				tps.sort(function(a, b) { return a-b });
+				// sort the timepoints
+				for (var i = 1; i < tps.length; i++) {
+					groups.get(tps[i]).get(gname).set("surv_prob", groups.get(tps[i-1]).get(gname).get("surv_prob") * ((groups.get(tps[i]).get(gname).get("risk_n") - groups.get(tps[i]).get(gname).get("death_n")) / groups.get(tps[i]).get(gname).get("risk_n")));
+				}
+			});
+				calc = {"covariate" : cname, "obs_sum1" : obs_sum1, "obs_sum2" : obs_sum2, "exp_sum1" : exp_sum1, "exp_sum2" : exp_sum2, "var_sum" : var_sum, "chisq" : chisq, "pvalue" : pvalue, "groups" : groups, "group_values" : group_values};
+				cdata.push(calc);
+			};
+			return cdata;
+		};
+	
+		function plot_km(data){
+			var data = data;
+			var time_1 = [], time_2 = [], surv_prob1 = [], surv_prob2 = [], gnames = [];
+			
+			for (let name of data["group_values"]){
+				gnames.push(name);
+			}
+			data["group_values"].forEach(function(gname) {
+				var tps = [];
+				for (let tp of data.groups.keys()) {
+					if (data.groups.get(tp).has(gname)) {
+						tps.push(tp);
+					}
+				}
+				tps.sort(function(a, b) { return a-b });
+				for (var i = 0; i < tps.length; i++) {
+					if (gname==gnames[0]){
+						if (tps[i]==0){
+							if (jQuery.inArray(tps[i],time_1)==-1){
+								time_1.push(tps[i]);
+								surv_prob1.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+							}
+						}
+						if (!data.groups.get(tps[i]).get(gname).get("censored_n")==0){
+							time_1.push(tps[i]);
+							surv_prob1.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+						}
+						if (!data.groups.get(tps[i]).get(gname).get("death_n")==0){
+							time_1.push(tps[i]);
+							surv_prob1.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+						}
+					}
+					if (gname==gnames[1]){
+						if (tps[i]==0){
+							if (jQuery.inArray(tps[i],time_2)==-1){
+								time_2.push(tps[i]);
+								surv_prob2.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+							}
+						}
+						if (!data.groups.get(tps[i]).get(gname).get("censored_n")==0){
+							time_2.push(tps[i]);
+							surv_prob2.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+						}
+						if (!data.groups.get(tps[i]).get(gname).get("death_n")==0){
+							time_2.push(tps[i]);
+							surv_prob2.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+						}
+					}
+				}
+			})
+			$("#dialog").html("<div id=page_id><br><br><br><h1>Kaplan-Meier Graph [" + data["covariate"] + "].</h1><div id='graph'></div></div>");
+			trace1 = {
+					x: time_1,
+					y: surv_prob1,
+					mode: 'lines+markers',
+					line: {shape: 'hv'},
+					type: 'scatter',
+					name: gnames[0],
+			};
+			trace2 = {
+					x: time_2,
+					y: surv_prob2,
+					mode: 'lines+markers',
+					line: {shape: 'hv'},
+					type: 'scatter',
+					name: gnames[1],
+			};	
+			Plotly.newPlot("graph", [trace1, trace2], {
+				width: $(window).width()-100,
+				height: $(window).height()-250,
+				xaxis: {title: {text: "Time, Months"}},
+				yaxis: {title: {text: "Survival Probability"}},
+				showlegend: true,
+				hovermode: "closest",
+			});
+			$("#dialog").dialog({
+				autoOpen: true,
+				modal: true,
+				height: $(window).height()-50,
+				width: $(window).width()-50,
+			});
+		}   
+		</script>
+		<!-- script1 needs to come first after script2 to enable responsive pop up dialog -->
+		<script id="theScript1" src="bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		<script id="theScript2" src="jqueryui.js"></script>
+		<!-- theScript contains codes to perform logrank test, tabulate data, and show results -->
+		<script id="theScript">
+			
+			function show_result(selected_data){
+				var selected_data = selected_data;
+				$(document).ready(function() {
+					$("#menubar > button[class='menu_btn']").hide();
+					$(".page_variable > #menubar").show();	
+					$("#menubar").html("<button class='menu_btn btn btn-secondary' onclick='filter_data(data, data_titles)'>Reset Variables</button><button class='d-none menu_btn btn btn-info save_test' onclick='storeThis(selected_data)'>Save Test</button><button id='downloadLink' class='menu_btn btn btn-warning' onclick='saveHTML()'>Save HTML</button>");
+					var data = logrank_test(selected_data["time"], selected_data["event"], selected_data["covariate"]);
+					dataShow = data;
+					$("#appendFilter").html("<div id='logrank'><h1>Survival Analysis Test</h1><p style='color:red'>*Click on each covariate row to show the Kaplan Meier graph.</p><div id='logrank_table'></div></div>");
+						window.logrank_table = new Tabulator("#logrank_table", {
+						data: data,
+						pagination: "local",
+						paginationSize: 25,
+						layout:"fitColumns",
+						columns: [
+							{title:"covariate", field:"covariate"},
+							{title:"pvalue", field:"pvalue"},
+							{title:"chisq", field:"chisq"},
+							{title:"obs_sum1", field:"obs_sum1"},
+							{title:"obs_sum2", field:"obs_sum2"},
+							{title:"exp_sum1", field:"exp_sum1"},
+							{title:"exp_sum2", field:"exp_sum2"},
+							{title:"var_sum", field:"var_sum"}
+						],
+						rowClick(e, row) {
+							plot_km(row.getData());
+
+						},
+					}); 
+				});
+			}
+			function logrank_test(time, event, covariate){
+				var selected_data = {"time" : time, "event" : event, "covariate" : covariate};
+				var cdata = [];
+				// convert the data into a useable format
+				for (var cname in selected_data["covariate"]){
+					var data = {};
+					if (selected_data.hasOwnProperty("time")){
+						var newData = [];
+						for (var i = 0; i < selected_data[Object.keys(selected_data)[0]].length; i++) {
+							var obj = {};
+							for (var aname in selected_data) {
+								if (aname == "covariate"){
+									obj[aname] = selected_data["covariate"][cname][i];
+								}
+								else{
+									obj[aname] = selected_data[aname][i];
+								}
+							}
+							newData.push(obj);
+						}
+						data = newData;
+					}
+					// mapping data for log-rank test
+					var combined = new Map();
+					var calc = {};
+					var gnames = [];
+					var obs_sum1 = 0, obs_sum2 = 0, exp_sum1 = 0, exp_sum2 = 0, var_sum = 0;
+					var chisq = 0, pvalue = 0;
+					var group_values = new Set(data.map(function(x) { return x["covariate"] }));
+					for (let name of group_values){
+						gnames.push(name);
+					}
+					data.filter(function(row) {
+						return row["event"]==1
+					}).map(function(row) {
+						if (!combined.has(row["time"])) {
+							combined.set(row["time"], new Map());
+						}
+					});
+					for (let tp of combined.keys()) {
+						combined.get(tp).set("risk_n1", data.filter(function(row) { return row["covariate"]==gnames[0] && row["time"]>=tp }).length);
+						combined.get(tp).set("obs_n1", data.filter(function(row) { return row["covariate"]==gnames[0] && row["time"]==tp && row["event"]==1 }).length);
+						combined.get(tp).set("risk_n2", data.filter(function(row) { return row["covariate"]==gnames[1] && row["time"]>=tp }).length);
+						combined.get(tp).set("obs_n2", data.filter(function(row) { return row["covariate"]==gnames[1] && row["time"]==tp && row["event"]==1 }).length);	
+					}
+					for (let tp of combined.keys()) {
+						combined.get(tp).set("exp_n1", combined.get(tp).get("risk_n1") * ((combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")) / (combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"))));
+						combined.get(tp).set("exp_n2", combined.get(tp).get("risk_n2") * ((combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")) / (combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"))));
+						combined.get(tp).set("var", ((combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")) * combined.get(tp).get("risk_n1") * combined.get(tp).get("risk_n2") * ((combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"))-(combined.get(tp).get("obs_n1") + combined.get(tp).get("obs_n2")))) / (Math.pow(combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2"),2) * (combined.get(tp).get("risk_n1") + combined.get(tp).get("risk_n2") - 1)));		
+					}
+					for (let tp of combined.keys()){ 
+						obs_sum1 += combined.get(tp).get("obs_n1");
+						obs_sum2 += combined.get(tp).get("obs_n2");
+						exp_sum1 += combined.get(tp).get("exp_n1");
+						exp_sum2 += combined.get(tp).get("exp_n2");
+						var_sum += combined.get(tp).get("var");
+					}
+					chisq = (Math.pow(obs_sum1 - exp_sum1,2)) / (var_sum);
+					pvalue = 1 - jStat.chisquare.cdf(chisq, 1); 
+					//mapping data for kaplam meier graph
+					var groups = new Map(); // keyed by timepoint
+					var group_values = new Set(data.map(function(x) { return x["covariate"] }));
+					// add the timepoints to the groups
+					groups.set(0, new Map()); // add the 0 timepoint
+					group_values.forEach(function(gname) {
+					groups.get(0).set(gname, new Map());
+					// add the timepoints in the data
+					data.filter(function(row) {
+						return row["covariate"]==gname
+					}).map(function(row) {
+						if (!groups.has(row["time"])) {
+							groups.set(row["time"], new Map());
+						}
+						if (!groups.get(row["time"]).has(gname)) {
+							groups.set(row["time"], new Map());
+							groups.get(row["time"]).set(gname, new Map());
+						}
+					});
+				});
+				// fill up the numbers
+				for (let tp of groups.keys()) {
+					for (let gname of groups.get(tp).keys()) {
+						groups.get(tp).get(gname).set("risk_n", data.filter(function(row) { return row["covariate"]==gname && row["time"]>=tp }).length);
+						groups.get(tp).get(gname).set("death_n", data.filter(function(row) { return row["covariate"]==gname && row["time"]==tp && row["event"]==1 }).length);
+						groups.get(tp).get(gname).set("censored_n", data.filter(function(row) { return row["covariate"]==gname && row["time"]==tp && row["event"]==0 }).length);
+					}
+				}
+				// compute the suvrival_prob
+				group_values.forEach(function(gname) {
+					var tps = [];
+					groups.get(0).get(gname).set("surv_prob", 1.0);
+					for (let tp of groups.keys()) {
+						if (groups.get(tp).has(gname)) {
+							tps.push(tp);
+						}
+					}
+					tps.sort(function(a, b) { return a-b });
+					// sort the timepoints
+					for (var i = 1; i < tps.length; i++) {
+						groups.get(tps[i]).get(gname).set("surv_prob", groups.get(tps[i-1]).get(gname).get("surv_prob") * ((groups.get(tps[i]).get(gname).get("risk_n") - groups.get(tps[i]).get(gname).get("death_n")) / groups.get(tps[i]).get(gname).get("risk_n")));
+					}
+				});
+					calc = {"covariate" : cname, "obs_sum1" : obs_sum1, "obs_sum2" : obs_sum2, "exp_sum1" : exp_sum1, "exp_sum2" : exp_sum2, "var_sum" : var_sum, "chisq" : chisq, "pvalue" : pvalue, "groups" : groups, "group_values" : group_values};
+					cdata.push(calc);
+				};
+				return cdata;
+			}
+			function plot_km(data){
+				var data = data;
+				var time_1 = [], time_2 = [], surv_prob1 = [], surv_prob2 = [], gnames = [];
+				
+				for (let name of data["group_values"]){
+					gnames.push(name);
+				}
+				data["group_values"].forEach(function(gname) {
+					var tps = [];
+					for (let tp of data.groups.keys()) {							
+						if (data.groups.get(tp).has(gname)) {
+							tps.push(tp);
+						}
+					}
+					tps.sort(function(a, b) { return a-b });
+					for (var i = 0; i < tps.length; i++) {
+						if (gname==gnames[0]){
+							if (tps[i]==0){
+								if (jQuery.inArray(tps[i],time_1)==-1){
+									time_1.push(tps[i]);
+									surv_prob1.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+								}
+							}
+							if (!data.groups.get(tps[i]).get(gname).get("censored_n")==0){
+								time_1.push(tps[i]);
+								surv_prob1.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+							}
+							if (!data.groups.get(tps[i]).get(gname).get("death_n")==0){
+								time_1.push(tps[i]);
+								surv_prob1.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+							}
+						}
+						if (gname==gnames[1]){
+							if (tps[i]==0){
+								if (jQuery.inArray(tps[i],time_2)==-1){
+									time_2.push(tps[i]);
+									surv_prob2.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+								}
+							}
+							if (!data.groups.get(tps[i]).get(gname).get("censored_n")==0){
+								time_2.push(tps[i]);
+								surv_prob2.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+							}
+							if (!data.groups.get(tps[i]).get(gname).get("death_n")==0){
+								time_2.push(tps[i]);
+								surv_prob2.push(data.groups.get(tps[i]).get(gname).get("surv_prob"));
+							}
+						}
+					}
+				})
+				$("#dialog").html("<div id=page_id><br><br><br><h1>Kaplan-Meier Graph [" + data["covariate"] + "].</h1><div id='graph'></div></div>");
+				trace1 = {
+						x: time_1,
+						y: surv_prob1,
+						mode: 'lines+markers',
+						line: {shape: 'hv'},
+						type: 'scatter',
+						name: gnames[0],
+				};
+				trace2 = {
+						x: time_2,
+						y: surv_prob2,
+						mode: 'lines+markers',
+						line: {shape: 'hv'},
+						type: 'scatter',
+						name: gnames[1],
+				};	
+				Plotly.newPlot("graph", [trace1, trace2], {
+					width: $(window).width()-100,
+					height: $(window).height()-250,
+					xaxis: {title: {text: "Time, Months"}},
+					yaxis: {title: {text: "Survival Probability"}},
+					showlegend: true,
+					hovermode: "closest",
+				});
+				$("#dialog").dialog({
+					autoOpen: true,
+					modal: true,
+					height: $(window).height()-50,
+					width: $(window).width()-50,
+				});
+			};
+		</script>
+		<script id="theScript3" src="jqueryui.js"></script>
+		<!-- theOtherScript will contain codes to parse json data upon downloading -->
+		<script id="theOtherScript"></script>
+		<script id="translationScripts">
+		$(document).ready(()=>{
+			// customized scripts
+			$('.btn_excel').click(()=>{
+				console.log("excel is clicked", $('.left_container').css('padding'), $('.right_container').css('padding'),
+				$('.upload_excel').css('padding'));
+				$('.excel_choose').css({'transform':'translateX(0%)'});
+			})
+			$('.saved_tests').click(()=>{
+				console.log('show saved tests button is clicked');
+				showStored(); 
+				if(JSON.parse(localStorage.getItem('dataTemp'))!==null){
+					$('.arrowclass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+				$('.up').mouseover(()=>{
+					$('.page_intro').css({transform: 'translateY(0%)'});
+					$('.page_upload').css({transform: 'translateY(0%)'});
+					$('.page_variable').css({transform: 'translateY(0%)'});
+					$('.arrowclass').delay(1000).queue(function(next){$(this).css({'opacity':'0','visibility':'collapse'}); next();});
+				})
+				$('.down').mouseover(()=>{
+					$('.page_intro').css({transform: 'translateY(-200%)'});
+					$('.page_upload').css({transform: 'translateY(-200%)'});
+					$('.page_variable').css({transform: 'translateY(-200%)'});
+					if($('.page_variable').css({transform: 'translateY(-200%)'})){
+						$('.upClass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+					} 
+				})   
+					$('.page_intro').css({transform: 'translateY(-200%)'});
+					$('.page_upload').css({transform: 'translateY(-200%)'});
+					$('.page_variable').css({transform: 'translateY(-200%)'});
+					if($('.page_variable').css({transform: 'translateY(-200%)'})){
+						$('.upClass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+					}; 
+				}
+			});
+			$('[data-toggle="tooltip"]').tooltip();
+			$('.page_intro > p').mouseover(()=>{
+				$('.page_intro').css({transform: 'translateY(-100%)'});
+				$('.page_upload').css({transform: 'translateY(-100%)'});
+				$('.page_variable').css({transform: 'translateY(-100%)'}); 
+				if($('.page_upload').css({transform: 'translateY(-100%)'})){
+					console.log("viewport is showing the upload page now");
+					$('.arrowclass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+					$('.up').mouseover(()=>{
+						$('.page_intro').css({transform: 'translateY(0%)'});
+						$('.page_upload').css({transform: 'translateY(0%)'});
+						$('.page_variable').css({transform: 'translateY(0%)'});
+						$('.arrowclass').delay(1000).queue(function(next){$(this).css({'opacity':'0','visibility':'collapse'}); next();});
+					})
+					$('.down').mouseover(()=>{
+						$('.page_intro').css({transform: 'translateY(-200%)'});
+						$('.page_upload').css({transform: 'translateY(-200%)'});
+						$('.page_variable').css({transform: 'translateY(-200%)'});
+						if($('.page_variable').css({transform: 'translateY(-200%)'})){
+							$('.upClass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+						}
+						
+					})
+					$('.submit_button').click(()=>{ 
+						if(!(sheet_name_list.length == 0 )) {
+							if(!($("#sheets_choice").css('visibility') == 'hidden')){
+								$('.page_intro').css({transform: 'translateY(-100%)'});
+								$('.page_upload').css({transform: 'translateY(-200%)'});
+								$('.page_variable').css({transform: 'translateY(-200%)'});
+								if($('.page_variable').css({transform: 'translateY(-200%)'})){
+									$('.upClass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+								};
+							};
+						}else{ 
+						$('.page_intro').css({transform: 'translateY(-100%)'});
+						$('.page_upload').css({transform: 'translateY(-200%)'});
+						$('.page_variable').css({transform: 'translateY(-200%)'});
+						if($('.page_variable').css({transform: 'translateY(-200%)'})){
+							$('.upClass').delay(3000).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+						};
+					};
+					})
+				};
+				$(_=>{
+					$("#dialog-message").dialog(({
+						modal: true,
+						buttons: {
+							Ok: function(){
+								$(this).dialog("close");
+							}
+						}
+					}))
+				}); 
+			}); 
+			$('.up_page3').mouseover(()=>{
+				console.log('page 3 is mouseovered');
+				$('.page_intro').css({transform: 'translateY(-100%)'});
+				$('.page_upload').css({transform: 'translateY(-100%)'});
+				$('.page_variable').css({transform: 'translateY(-100%)'});
+				$('.downClass').delay(0).queue(function(next){$(this).css({'visibility':'visible','opacity': '1'}); next();});
+			}); 
+	  });
+	  </script>
+  </body>
+</html>
