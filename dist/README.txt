@@ -1,5 +1,5 @@
 ## to embed all the external scripts, frameworks, and libraries:
-1. Run the script ~/template_and_python_scripts/GenerateHtml.py -o output_name_html -t survivalanalysis
+1. Run the script ~/template_and_python_scripts/GenerateHtml.py -o html_output_name -t survivalanalysis
 
 ## guide into the web tool
 1. Mouseover to "Start Here".
